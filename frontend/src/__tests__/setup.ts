@@ -11,8 +11,10 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
 }
-global.localStorage = localStorageMock
+global.localStorage = localStorageMock as Storage
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -20,8 +22,10 @@ const sessionStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
 }
-global.sessionStorage = sessionStorageMock
+global.sessionStorage = sessionStorageMock as Storage
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({

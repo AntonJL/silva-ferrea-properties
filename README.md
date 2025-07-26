@@ -1,209 +1,212 @@
 # Silva Ferrea Properties
 
-A comprehensive property management platform tailored for individual or small-scale property owners to track, manage, and analyze their real estate holdings.
-
-## 🏠 Features
-
-### Core Modules
-- **Property Registry**: Manage properties with detailed information including ownership, loans, and market values
-- **Tenancy Module**: Track tenants, rent payments, and generate invoices
-- **Financial Accounting**: Record and analyze income, expenses, and cash flow
-- **Maintenance Tracker**: Log and monitor property maintenance activities
-- **Document Vault**: Store and organize property-related documents
-- **Capital Health Dashboard**: Visualize portfolio performance and equity metrics
-
-### User Roles
-- **Owner**: Full access to all features
-- **Manager**: Limited access (cannot edit ownership/equity details)
-- **Accountant**: Read-only access with transaction management capabilities
-
-## 🛠 Tech Stack
-
-- **Frontend**: React 18 with TypeScript, Chakra UI
-- **Backend**: Node.js with Express, TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT with role-based access control
-- **File Storage**: Local file system (configurable for cloud storage)
+A comprehensive property management platform built with modern web technologies.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ 
-- PostgreSQL 14+
 - npm or yarn
+- PostgreSQL database
 
-### Automated Setup (Recommended)
+### Local Development
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd silva-ferrea-properties
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd SilvaFerrea
+   ```
 
-2. Run the setup script:
-```bash
-./scripts/setup.sh
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-3. Configure your database connection in `backend/.env`
+3. **Set up environment variables**
+   ```bash
+   # Backend
+   cp backend/env.example backend/.env
+   # Edit backend/.env with your database URL and JWT secret
+   
+   # Frontend
+   cp frontend/.env.example frontend/.env
+   # Edit frontend/.env with your API URL
+   ```
 
-4. Start the development servers:
-```bash
-npm run dev
-```
+4. **Set up database**
+   ```bash
+   cd backend
+   npm run prisma:generate
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
 
-### Manual Setup
+5. **Start development servers**
+   ```bash
+   # From project root
+   npm run dev
+   ```
 
-1. Install dependencies:
-```bash
-npm run install:all
-```
+   This will start:
+   - Backend API: http://localhost:5000
+   - Frontend: http://localhost:3000
+   - API Docs: http://localhost:5000/api/docs
 
-2. Set up environment variables:
-```bash
-cp backend/env.example backend/.env
-```
+## 🏗️ Architecture
 
-3. Configure your database connection in `backend/.env`
+### Backend (Node.js + Express + Prisma)
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT tokens
+- **Validation**: Zod schemas
+- **Documentation**: Swagger/OpenAPI
+- **Security**: Helmet, CORS, Rate limiting
 
-4. Set up the database:
-```bash
-npm run db:generate
-npm run db:migrate
-npm run db:seed
-```
-
-5. Start the development servers:
-```bash
-npm run dev
-```
-
-## 🌐 Access Points
-
-The application will be available at:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **API Documentation**: http://localhost:5000/api/docs
-
-## 🔑 Default Login
-
-After running the seed script, you can login with:
-- **Email**: admin@silvaferrea.com
-- **Password**: admin123
+### Frontend (React + Vite + Chakra UI)
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **UI Library**: Chakra UI
+- **State Management**: Zustand
+- **Routing**: React Router
+- **Icons**: React Icons
 
 ## 📁 Project Structure
 
 ```
-silva-ferrea-properties/
-├── frontend/                 # React frontend application
+SilvaFerrea/
+├── backend/                 # Backend API
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── features/        # Feature-based modules
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── services/       # API services
-│   │   ├── stores/         # Zustand state stores
-│   │   └── utils/          # Utility functions
-├── backend/                 # Node.js backend application
-│   ├── src/
-│   │   ├── middleware/     # Express middleware
 │   │   ├── routes/         # API routes
-│   │   ├── lib/           # Shared libraries
-│   │   └── utils/         # Utility functions
-│   └── prisma/            # Database schema and migrations
-├── docs/                   # Documentation
-│   ├── ARCHITECTURE.md    # System architecture
-│   └── API.md             # API documentation
-└── scripts/               # Setup and utility scripts
+│   │   ├── middleware/     # Express middleware
+│   │   └── lib/           # Utilities
+│   ├── prisma/            # Database schema & migrations
+│   └── package.json
+├── frontend/               # Frontend application
+│   ├── src/
+│   │   ├── components/    # Reusable components
+│   │   ├── features/      # Feature-based modules
+│   │   ├── stores/        # State management
+│   │   └── theme.ts       # Chakra UI theme
+│   └── package.json
+├── docs/                  # Documentation
+└── scripts/               # Deployment scripts
 ```
 
-## 📚 Documentation
+## 🚀 Deployment
 
-- [Architecture Documentation](docs/ARCHITECTURE.md) - System design and technical details
-- [API Documentation](docs/API.md) - Complete API reference
-- [API Docs (Swagger)](http://localhost:5000/api/docs) - Interactive API documentation
+### Quick Deployment
+
+Run the deployment preparation script:
+```bash
+./scripts/deploy.sh
+```
+
+### Manual Deployment
+
+See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions on deploying to:
+- **Backend**: Render.com
+- **Frontend**: Vercel.com
+- **Database**: Supabase, Railway, or Neon
 
 ## 🔧 Available Scripts
 
 ### Root Level
 - `npm run dev` - Start both frontend and backend in development mode
 - `npm run build` - Build both frontend and backend for production
-- `npm run install:all` - Install dependencies for all packages
+- `npm test` - Run tests for both frontend and backend
 
 ### Backend
-- `npm run dev:backend` - Start backend development server
-- `npm run build:backend` - Build backend for production
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:migrate` - Run database migrations
-- `npm run db:seed` - Seed database with sample data
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build TypeScript to JavaScript
+- `npm start` - Start production server
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:migrate` - Run database migrations
+- `npm run prisma:seed` - Seed database with sample data
 
 ### Frontend
-- `npm run dev:frontend` - Start frontend development server
-- `npm run build:frontend` - Build frontend for production
+- `npm run dev` - Start Vite development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
 
-## 🗄 Database
+## 📊 Features
 
-The application uses PostgreSQL with Prisma ORM. The database schema includes:
+### Authentication & Authorization
+- User registration and login
+- JWT-based authentication
+- Role-based access control (Owner, Manager, Accountant)
 
-- **Users** - Authentication and role management
-- **Properties** - Property information and ownership
-- **Loans** - Mortgage and loan tracking
-- **Tenants** - Tenant information and contracts
-- **RentPayments** - Monthly rent payment tracking
-- **Transactions** - Financial transaction history
-- **MaintenanceEvents** - Property maintenance tracking
-- **Documents** - File storage and management
+### Property Management
+- Property listings with details
+- Property status tracking
+- Photo management
+- Location mapping
+
+### Tenant Management
+- Tenant profiles and contact information
+- Lease agreements
+- Payment history
+- Communication logs
+
+### Financial Management
+- Rent collection tracking
+- Expense management
+- Financial reporting
+- Transaction history
+
+### Maintenance
+- Maintenance request tracking
+- Work order management
+- Vendor management
+- Maintenance history
+
+### Document Management
+- Document upload and storage
+- Document categorization
+- Version control
+- Access permissions
+
+### Dashboard & Analytics
+- Property overview
+- Financial summaries
+- Maintenance status
+- Occupancy rates
 
 ## 🔒 Security Features
 
-- JWT-based authentication
-- Role-based access control (RBAC)
+- JWT authentication with secure token handling
 - Password hashing with bcrypt
-- Input validation and sanitization
-- Rate limiting
 - CORS protection
+- Rate limiting
+- Input validation with Zod
+- SQL injection protection with Prisma
+- XSS protection with Helmet
 
-## 🚀 Deployment
+## 🧪 Testing
 
-### Environment Variables
-
-#### Backend (.env)
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/silva_ferrea_db"
-JWT_SECRET="your-super-secret-jwt-key"
-PORT=5000
-NODE_ENV="development"
+### Backend Tests
+```bash
+cd backend
+npm test
 ```
 
-#### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=Silva Ferrea Properties
+### Frontend Tests
+```bash
+cd frontend
+npm test
 ```
 
-## 🔮 Future Enhancements
+## 📚 API Documentation
 
-### Planned Features
-- Integration with Swedish accounting systems (Fortnox, Bokio)
-- Automated rent collection (Stripe, Bankgiro)
-- Market value estimation APIs (Booli, Hemnet)
-- Swedish tax export functionality
-- Mobile application
-- Advanced analytics and reporting
-
-### Technical Improvements
-- Real-time notifications
-- Advanced search and filtering
-- Bulk operations
-- Data import/export functionality
-- Multi-language support
+When running the backend, visit `http://localhost:5000/api/docs` for interactive API documentation.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
@@ -211,14 +214,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-If you encounter any issues or have questions:
+For support and questions:
+- Check the [documentation](docs/)
+- Review the [deployment guide](docs/DEPLOYMENT.md)
+- Open an issue on GitHub
 
-1. Check the [documentation](docs/)
-2. Review the [API documentation](http://localhost:5000/api/docs)
-3. Open an issue on GitHub
+## 🗺️ Roadmap
 
-## 🙏 Acknowledgments
-
-- Built with modern web technologies
-- Designed for Swedish property market requirements
-- Focused on user experience and data security 
+- [ ] Mobile application
+- [ ] Advanced reporting and analytics
+- [ ] Integration with payment gateways
+- [ ] Email notifications
+- [ ] Multi-language support
+- [ ] Advanced search and filtering
+- [ ] Bulk operations
+- [ ] API rate limiting improvements
+- [ ] Real-time notifications
+- [ ] File upload improvements 

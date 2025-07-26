@@ -1,226 +1,110 @@
 #!/bin/bash
 
-# Silva Ferrea Properties - Deployment Script
-# This script handles automated deployments to various platforms
+# Silva Ferrea Properties Deployment Script
+# This script helps prepare and deploy the application
 
 set -e
+
+echo "🚀 Silva Ferrea Properties Deployment Script"
+echo "============================================="
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
 print_status() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}✓${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}⚠${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}✗${NC} $1"
 }
 
-# Check if required tools are installed
-check_dependencies() {
-    print_status "Checking deployment dependencies..."
-    
-    if ! command -v docker &> /dev/null; then
-        print_error "Docker is not installed. Please install Docker first."
-        exit 1
-    fi
-    
-    if ! command -v docker-compose &> /dev/null; then
-        print_error "Docker Compose is not installed. Please install Docker Compose first."
-        exit 1
-    fi
-    
-    print_success "All dependencies are installed"
-}
+# Check if we're in the right directory
+if [ ! -f "package.json" ] || [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+    print_error "Please run this script from the project root directory"
+    exit 1
+fi
 
-# Build Docker images
-build_images() {
-    print_status "Building Docker images..."
-    
-    docker-compose build --no-cache
-    
-    print_success "Docker images built successfully"
-}
+print_status "Checking prerequisites..."
 
-# Deploy to local Docker environment
-deploy_local() {
-    print_status "Deploying to local Docker environment..."
-    
-    docker-compose down
-    docker-compose up -d
-    
-    print_success "Local deployment completed"
-    print_status "Frontend: http://localhost:3000"
-    print_status "Backend API: http://localhost:5000"
-    print_status "API Docs: http://localhost:5000/api/docs"
-}
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+    print_error "Node.js is not installed. Please install Node.js first."
+    exit 1
+fi
 
-# Deploy to production
-deploy_production() {
-    print_status "Deploying to production..."
-    
-    # Check if production environment variables are set
-    if [ -z "$PRODUCTION_DATABASE_URL" ]; then
-        print_error "PRODUCTION_DATABASE_URL environment variable is not set"
-        exit 1
-    fi
-    
-    if [ -z "$PRODUCTION_JWT_SECRET" ]; then
-        print_error "PRODUCTION_JWT_SECRET environment variable is not set"
-        exit 1
-    fi
-    
-    # Build production images
-    docker-compose -f docker-compose.prod.yml build
-    
-    # Deploy to production
-    docker-compose -f docker-compose.prod.yml up -d
-    
-    print_success "Production deployment completed"
-}
+# Check if npm is installed
+if ! command -v npm &> /dev/null; then
+    print_error "npm is not installed. Please install npm first."
+    exit 1
+fi
 
-# Deploy to Vercel
-deploy_vercel() {
-    print_status "Deploying to Vercel..."
-    
-    if ! command -v vercel &> /dev/null; then
-        print_error "Vercel CLI is not installed. Please install it first: npm i -g vercel"
-        exit 1
-    fi
-    
-    # Deploy frontend
-    cd frontend
-    vercel --prod
-    cd ..
-    
-    print_success "Vercel deployment completed"
-}
+print_status "Prerequisites check passed"
 
-# Run database migrations
-run_migrations() {
-    print_status "Running database migrations..."
-    
-    cd backend
-    npm run prisma:migrate
-    cd ..
-    
-    print_success "Database migrations completed"
-}
+# Build backend
+echo ""
+print_status "Building backend..."
+cd backend
 
-# Seed database
-seed_database() {
-    print_status "Seeding database..."
-    
-    cd backend
-    npm run prisma:seed
-    cd ..
-    
-    print_success "Database seeding completed"
-}
+# Install dependencies
+npm install
 
-# Health check
-health_check() {
-    print_status "Performing health checks..."
-    
-    # Check if services are running
-    if curl -f http://localhost:5000/api/health > /dev/null 2>&1; then
-        print_success "Backend health check passed"
-    else
-        print_error "Backend health check failed"
-        exit 1
-    fi
-    
-    if curl -f http://localhost:3000 > /dev/null 2>&1; then
-        print_success "Frontend health check passed"
-    else
-        print_error "Frontend health check failed"
-        exit 1
-    fi
-    
-    print_success "All health checks passed"
-}
+# Generate Prisma client
+npm run prisma:generate
 
-# Clean up
-cleanup() {
-    print_status "Cleaning up..."
-    
-    docker-compose down
-    docker system prune -f
-    
-    print_success "Cleanup completed"
-}
+# Build TypeScript
+npm run build
 
-# Show usage
-show_usage() {
-    echo "Usage: $0 [COMMAND]"
-    echo ""
-    echo "Commands:"
-    echo "  local       Deploy to local Docker environment"
-    echo "  production  Deploy to production environment"
-    echo "  vercel      Deploy frontend to Vercel"
-    echo "  build       Build Docker images"
-    echo "  migrate     Run database migrations"
-    echo "  seed        Seed database with sample data"
-    echo "  health      Perform health checks"
-    echo "  cleanup     Clean up Docker resources"
-    echo "  help        Show this help message"
-    echo ""
-    echo "Environment variables for production:"
-    echo "  PRODUCTION_DATABASE_URL  Production database URL"
-    echo "  PRODUCTION_JWT_SECRET    Production JWT secret"
-}
+print_status "Backend build completed"
 
-# Main function
-main() {
-    case "${1:-help}" in
-        local)
-            check_dependencies
-            build_images
-            deploy_local
-            health_check
-            ;;
-        production)
-            check_dependencies
-            deploy_production
-            health_check
-            ;;
-        vercel)
-            deploy_vercel
-            ;;
-        build)
-            check_dependencies
-            build_images
-            ;;
-        migrate)
-            run_migrations
-            ;;
-        seed)
-            seed_database
-            ;;
-        health)
-            health_check
-            ;;
-        cleanup)
-            cleanup
-            ;;
-        help|*)
-            show_usage
-            ;;
-    esac
-}
+# Build frontend
+echo ""
+print_status "Building frontend..."
+cd ../frontend
 
-# Run main function
-main "$@" 
+# Install dependencies
+npm install
+
+# Build for production
+npm run build
+
+print_status "Frontend build completed"
+
+# Return to root
+cd ..
+
+echo ""
+print_status "Build process completed successfully!"
+echo ""
+echo "📋 Next Steps:"
+echo "=============="
+echo ""
+echo "1. Set up a PostgreSQL database (Supabase, Railway, or Neon)"
+echo "2. Deploy backend to Render:"
+echo "   - Go to render.com"
+echo "   - Create new Web Service"
+echo "   - Connect your GitHub repository"
+echo "   - Set root directory to 'backend'"
+echo "   - Add environment variables (see docs/DEPLOYMENT.md)"
+echo ""
+echo "3. Deploy frontend to Vercel:"
+echo "   - Go to vercel.com"
+echo "   - Create new project"
+echo "   - Connect your GitHub repository"
+echo "   - Set root directory to 'frontend'"
+echo "   - Add VITE_API_URL environment variable"
+echo ""
+echo "4. Run database migrations:"
+echo "   npx prisma migrate deploy"
+echo ""
+echo "📖 For detailed instructions, see: docs/DEPLOYMENT.md"
+echo ""
+print_status "Deployment preparation completed!" 
