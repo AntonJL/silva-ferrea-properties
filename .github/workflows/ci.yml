@@ -106,7 +106,7 @@ jobs:
           npm test
           
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./backend/coverage/lcov.info
           flags: backend
@@ -138,7 +138,7 @@ jobs:
           npm test -- --coverage --watchAll=false
           
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./frontend/coverage/lcov.info
           flags: frontend
