@@ -22,6 +22,10 @@ const loginSchema = z.object({
   password: z.string()
 });
 
+// JWT secret configuration
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
 /**
  * @swagger
  * /auth/register:
@@ -97,7 +101,11 @@ router.post('/register', async (req, res) => {
     });
 
     // Generate JWT token
-    const token = 'temporary-token'; // TODO: Fix JWT signing
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
 
     return res.status(201).json({
       success: true,
@@ -183,7 +191,11 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate JWT token
-    const token = 'temporary-token'; // TODO: Fix JWT signing
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
 
     const { password: _, ...userWithoutPassword } = user;
 
@@ -240,12 +252,12 @@ router.get('/me', protect, async (req: AuthRequest, res) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: user
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server error'
     });
