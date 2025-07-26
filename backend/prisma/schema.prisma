@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  ACCOUNTANT
+}
+
+enum PropertyStatus {
+  ACTIVE
+  INACTIVE
+  SOLD
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  TERMINATED
+}
+
+enum RentStatus {
+  PAID
+  UNPAID
+  PARTIAL
+  OVERDUE
+}
+
+enum MaintenanceStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionCategory {
+  RENT_INCOME
+  MAINTENANCE_EXPENSE
+  LOAN_PAYMENT
+  UTILITIES
+  INSURANCE
+  PROPERTY_TAX
+  MANAGEMENT_FEE
+  OTHER_INCOME
+  OTHER_EXPENSE
+}
+
+enum DocumentType {
+  INSURANCE
+  INVOICE
+  CONTRACT
+  RECEIPT
+  TAX_DOCUMENT
+  MAINTENANCE_REPORT
+  OTHER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(OWNER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  properties Property[]
+  tenants    Tenant[]
+  transactions Transaction[]
+  maintenanceEvents MaintenanceEvent[]
+  documents  Document[]
+
+  @@map("users")
+}
+
+model Property {
+  id              String         @id @default(cuid())
+  name            String
+  address         String
+  purchasePrice   Decimal        @db.Decimal(15, 2)
+  acquisitionDate DateTime
+  currentMarketValue Decimal     @db.Decimal(15, 2)
+  size            Decimal        @db.Decimal(10, 2) // m²
+  numberOfRooms   Int
+  amenities       String[]       // Array of amenities
+  ownershipShare  Decimal        @db.Decimal(5, 2) // Percentage
+  status          PropertyStatus @default(ACTIVE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenants         Tenant[]
+  transactions    Transaction[]
+  maintenanceEvents MaintenanceEvent[]
+  documents       Document[]
+  loans           Loan[]
+
+  @@map("properties")
+}
+
+model Loan {
+  id              String   @id @default(cuid())
+  bankName        String
+  loanAmount      Decimal  @db.Decimal(15, 2)
+  interestRate    Decimal  @db.Decimal(5, 4) // Percentage
+  startDate       DateTime
+  endDate         DateTime?
+  monthlyPayment  Decimal  @db.Decimal(10, 2)
+  remainingBalance Decimal @db.Decimal(15, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  propertyId      String
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("loans")
+}
+
+model Tenant {
+  id              String       @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  rentAmount      Decimal      @db.Decimal(10, 2)
+  deposit         Decimal      @db.Decimal(10, 2)
+  contractStartDate DateTime
+  contractEndDate   DateTime?
+  status          TenantStatus @default(PENDING)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  propertyId      String
+  property        Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rentPayments    RentPayment[]
+  documents       Document[]
+
+  @@map("tenants")
+}
+
+model RentPayment {
+  id              String     @id @default(cuid())
+  amount          Decimal    @db.Decimal(10, 2)
+  dueDate         DateTime
+  paidDate        DateTime?
+  status          RentStatus @default(UNPAID)
+  invoiceNumber   String?
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  tenantId        String
+  tenant          Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("rent_payments")
+}
+
+model Transaction {
+  id              String              @id @default(cuid())
+  date            DateTime
+  amount          Decimal             @db.Decimal(15, 2)
+  category        TransactionCategory
+  description     String
+  receiptPath     String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relations
+  propertyId      String
+  property        Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model MaintenanceEvent {
+  id              String            @id @default(cuid())
+  taskName        String
+  category        String
+  status          MaintenanceStatus @default(PLANNED)
+  costEstimate    Decimal           @db.Decimal(10, 2)
+  actualCost      Decimal           @db.Decimal(10, 2)?
+  contractorName  String?
+  contractorPhone String?
+  description     String
+  scheduledDate   DateTime?
+  completedDate   DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  propertyId      String
+  property        Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents       Document[]
+
+  @@map("maintenance_events")
+}
+
+model Document {
+  id              String       @id @default(cuid())
+  title           String
+  type            DocumentType
+  filePath        String
+  fileSize        Int
+  mimeType        String
+  uploadDate      DateTime     @default(now())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  propertyId      String?
+  property        Property?    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenantId        String?
+  tenant          Tenant?      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  maintenanceEventId String?
+  maintenanceEvent MaintenanceEvent? @relation(fields: [maintenanceEventId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+} 
