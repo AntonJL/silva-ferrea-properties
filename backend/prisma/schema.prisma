@@ -200,7 +200,7 @@ model MaintenanceEvent {
   category        String
   status          MaintenanceStatus @default(PLANNED)
   costEstimate    Decimal           @db.Decimal(10, 2)
-  actualCost      Decimal           @db.Decimal(10, 2)?
+  actualCost      Decimal?          @db.Decimal(10, 2)
   contractorName  String?
   contractorPhone String?
   description     String

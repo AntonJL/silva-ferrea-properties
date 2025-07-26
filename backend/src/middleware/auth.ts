@@ -16,7 +16,7 @@ export const protect = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   let token;
 
   if (
@@ -27,10 +27,11 @@ export const protect = async (
   }
 
   if (!token) {
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       error: 'Not authorized to access this route'
     });
+    return;
   }
 
   try {
@@ -47,36 +48,40 @@ export const protect = async (
     });
 
     if (!user || !user.isActive) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: 'User not found or inactive'
       });
+      return;
     }
 
     req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       error: 'Not authorized to access this route'
     });
+    return;
   }
 };
 
 export const authorize = (...roles: UserRole[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: 'Not authorized to access this route'
       });
+      return;
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         error: `User role ${req.user.role} is not authorized to access this route`
       });
+      return;
     }
 
     next();

@@ -57,12 +57,12 @@ router.get('/', protect, async (req: AuthRequest, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: properties
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server error'
     });
@@ -128,12 +128,12 @@ router.get('/:id', protect, async (req: AuthRequest, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: property
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server error'
     });
@@ -207,7 +207,7 @@ router.post('/', protect, authorize(UserRole.OWNER, UserRole.MANAGER), async (re
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: property
     });
@@ -220,7 +220,7 @@ router.post('/', protect, authorize(UserRole.OWNER, UserRole.MANAGER), async (re
       });
     }
     
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server error'
     });
@@ -310,7 +310,7 @@ router.put('/:id', protect, authorize(UserRole.OWNER, UserRole.MANAGER), async (
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: property
     });
@@ -323,7 +323,7 @@ router.put('/:id', protect, authorize(UserRole.OWNER, UserRole.MANAGER), async (
       });
     }
     
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server error'
     });
@@ -370,12 +370,12 @@ router.delete('/:id', protect, authorize(UserRole.OWNER), async (req: AuthReques
       where: { id: req.params.id }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Property deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Server error'
     });
