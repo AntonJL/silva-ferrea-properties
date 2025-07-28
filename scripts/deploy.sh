@@ -1,110 +1,61 @@
 #!/bin/bash
 
-# Silva Ferrea Properties Deployment Script
-# This script helps prepare and deploy the application
+echo "🚀 Silva Ferrea Properties - Deployment Script"
+echo "=============================================="
 
-set -e
-
-echo "🚀 Silva Ferrea Properties Deployment Script"
-echo "============================================="
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-# Check if we're in the right directory
-if [ ! -f "package.json" ] || [ ! -d "backend" ] || [ ! -d "frontend" ]; then
-    print_error "Please run this script from the project root directory"
+# Check if git is initialized
+if [ ! -d ".git" ]; then
+    echo "❌ Git repository not found. Please initialize git first:"
+    echo "   git init"
+    echo "   git add ."
+    echo "   git commit -m 'Initial commit'"
     exit 1
 fi
 
-print_status "Checking prerequisites..."
-
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-    print_error "Node.js is not installed. Please install Node.js first."
-    exit 1
+# Check if all dependencies are installed
+echo "📦 Checking dependencies..."
+if [ ! -d "node_modules" ]; then
+    echo "Installing root dependencies..."
+    npm install
 fi
 
-# Check if npm is installed
-if ! command -v npm &> /dev/null; then
-    print_error "npm is not installed. Please install npm first."
-    exit 1
+if [ ! -d "backend/node_modules" ]; then
+    echo "Installing backend dependencies..."
+    cd backend && npm install && cd ..
 fi
 
-print_status "Prerequisites check passed"
+if [ ! -d "frontend/node_modules" ]; then
+    echo "Installing frontend dependencies..."
+    cd frontend && npm install && cd ..
+fi
 
-# Build backend
-echo ""
-print_status "Building backend..."
-cd backend
+echo "✅ Dependencies checked!"
 
-# Install dependencies
-npm install
-
-# Generate Prisma client
-npm run prisma:generate
-
-# Build TypeScript
+# Build the project
+echo "🔨 Building project..."
 npm run build
 
-print_status "Backend build completed"
-
-# Build frontend
-echo ""
-print_status "Building frontend..."
-cd ../frontend
-
-# Install dependencies
-npm install
-
-# Build for production
-npm run build
-
-print_status "Frontend build completed"
-
-# Return to root
-cd ..
+if [ $? -eq 0 ]; then
+    echo "✅ Build successful!"
+else
+    echo "❌ Build failed!"
+    exit 1
+fi
 
 echo ""
-print_status "Build process completed successfully!"
+echo "🎉 Project is ready for deployment!"
 echo ""
-echo "📋 Next Steps:"
-echo "=============="
+echo "Next steps:"
+echo "1. Deploy backend to Railway:"
+echo "   - Push to GitHub"
+echo "   - Connect to Railway"
+echo "   - Set environment variables"
 echo ""
-echo "1. Set up a PostgreSQL database (Supabase, Railway, or Neon)"
-echo "2. Deploy backend to Render:"
-echo "   - Go to render.com"
-echo "   - Create new Web Service"
-echo "   - Connect your GitHub repository"
-echo "   - Set root directory to 'backend'"
-echo "   - Add environment variables (see docs/DEPLOYMENT.md)"
+echo "2. Deploy frontend to Vercel:"
+echo "   - Push to GitHub"
+echo "   - Connect to Vercel"
+echo "   - Set environment variables"
 echo ""
-echo "3. Deploy frontend to Vercel:"
-echo "   - Go to vercel.com"
-echo "   - Create new project"
-echo "   - Connect your GitHub repository"
-echo "   - Set root directory to 'frontend'"
-echo "   - Add VITE_API_URL environment variable"
+echo "3. Update environment variables with actual URLs"
 echo ""
-echo "4. Run database migrations:"
-echo "   npx prisma migrate deploy"
-echo ""
-echo "📖 For detailed instructions, see: docs/DEPLOYMENT.md"
-echo ""
-print_status "Deployment preparation completed!" 
+echo "📚 See README.md for detailed deployment instructions" 

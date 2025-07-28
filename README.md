@@ -102,6 +102,28 @@ Run the deployment preparation script:
 ./scripts/deploy.sh
 ```
 
+### Deployment Options
+
+We provide multiple deployment options to suit your needs:
+
+1. **🚀 Railway + Vercel (Recommended)**
+   - Backend: Railway (Node.js hosting)
+   - Frontend: Vercel (React hosting)
+   - Database: Railway PostgreSQL or Supabase
+   - Cost: $10-40/month
+
+2. **🌐 Alternative Platforms**
+   - Fly.io + Vercel
+   - Render + Vercel
+   - AWS Free Tier
+   - DigitalOcean App Platform
+
+📖 **Detailed deployment guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
+🔄 **Alternative options**: [DEPLOYMENT_ALTERNATIVES.md](./DEPLOYMENT_ALTERNATIVES.md)
+```bash
+./scripts/deploy.sh
+```
+
 ### Manual Deployment
 
 See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions on deploying to:
